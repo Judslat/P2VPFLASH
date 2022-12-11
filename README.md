@@ -1,3 +1,9 @@
+THIS IS IMPORTANT, THE TOOL MUST BE INSTALLED IN THE SET
+DIRECTORY C:\USER OR THE TOOL WILL NOT WORK
+
+
+
+
 This is the Phantom 2 Vision Plus Flashing tool
 this is designed only for the above quad and no others
 
