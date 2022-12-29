@@ -1,3 +1,11 @@
+Please only use V7 if you are willing to be a 
+guinea pig, it is experimental, it shows the com
+ports that are in use on your pc, if it works fine
+please drop me an email at flymyphantom@outlook.com
+
+
+
+
 THIS IS IMPORTANT, THE TOOL MUST BE INSTALLED IN THE SET
 DIRECTORY C:\USER OR THE TOOL WILL NOT WORK
 
