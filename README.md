@@ -1,16 +1,12 @@
-Please only use V7 if you are willing to be a 
-guinea pig, it is experimental, it shows the com
-ports that are in use on your pc, if it works fine
-please drop me an email at flymyphantom@outlook.com
-
-
-
-
+V7 VERSION NOW SHOWS YOU PORTS THAT ARE
+ACTIVE ON THE SYSTEM TO SAVE YOU DIGGING INTO
+DEVICE MANAGER
+*************************************************************
+************************************************************
 THIS IS IMPORTANT, THE TOOL MUST BE INSTALLED IN THE SET
 DIRECTORY C:\USER OR THE TOOL WILL NOT WORK
-
-
-
+************************************************************
+************************************************************
 
 This is the Phantom 2 Vision Plus Flashing tool
 this is designed only for the above quad and no others
@@ -22,5 +18,7 @@ and it will install and add a shortcut to the desktop
 Tool has a step by step guide please follow it.
 
 You will need NetFramework installed to run it.
+
+VIDEO GUIDE IS HERE https://youtu.be/qKSKhtyIztY
 
 
