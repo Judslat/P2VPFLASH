@@ -1,6 +1,7 @@
-V7 VERSION NOW SHOWS YOU PORTS THAT ARE
-ACTIVE ON THE SYSTEM TO SAVE YOU DIGGING INTO
-DEVICE MANAGER
+V8 now has a new drop down box for choosing the com port
+simply choose USB com port and the rest is done for you
+also includes an easier way to use PUTTY
+video guide is here https://www.youtube.com/watch?v=9CAGwSzjLy8
 *************************************************************
 ************************************************************
 THIS IS IMPORTANT, THE TOOL MUST BE INSTALLED IN THE SET
