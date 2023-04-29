@@ -1,3 +1,7 @@
+v9 uploaded as the picture was wrong for the wiring thats
+the only change
+*********************************************************
+
 V8 now has a new drop down box for choosing the com port
 simply choose USB com port and the rest is done for you
 also includes an easier way to use PUTTY
