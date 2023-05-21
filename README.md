@@ -1,3 +1,11 @@
+V10 NOW RUNS IN A POWERSHELL WINDOW, THIS ALLOWED ME TO 
+OFFLOAD ALL THE BATCH FILES THAT WERE IN ZIP FILE AND NOW
+MEANS I CAN MAKE CHANGES TO ONE FILE INSTEAD OF 4
+**********************************************************************************
+
+
+
+
 v9 uploaded as the picture was wrong for the wiring thats
 the only change
 *********************************************************
