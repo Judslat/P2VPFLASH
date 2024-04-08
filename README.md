@@ -2,7 +2,10 @@ V10 NOW RUNS IN A POWERSHELL WINDOW, THIS ALLOWED ME TO
 OFFLOAD ALL THE BATCH FILES THAT WERE IN ZIP FILE AND NOW
 MEANS I CAN MAKE CHANGES TO ONE FILE INSTEAD OF 4
 **********************************************************************************
-
+the win7 32bit is exactly that, the latest version doesnt work due 
+to netframe work and also putty version is 64bit, has been tested on
+WIn7 ultimate but no guarantees it does work on other versions, if it doesnt
+email me at flymymavic@outlook.com
 
 
 
