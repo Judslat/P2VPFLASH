@@ -1,6 +1,7 @@
-V11 IS NOW THE LATEST VERSION, THERE ARE SOME MINOR COSMETIC CHANGES TO THE INTERFACE
-PLUS PUTTY NOW OPENS FOR 5 SECONDS THEN CLOSES AS OPPOSED TO V10 WHERE YOU HAD TO 
-CLOSE THE PUTTY WINDOW MANUALLY
+V11 IS NOW THE LATEST VERSION,BUT IT HAS ISSUES SO ITS BEEN PULED PLEASE CHECK BACK ALTER
+
+
+
 **********************************************************************************
 the win7 32bit is exactly that, the latest version doesnt work due 
 to netframe work and also putty version is 64bit, has been tested on
