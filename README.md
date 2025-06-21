@@ -1,24 +1,8 @@
-V11 IS NOW THE LATEST VERSION, IT HAS A NEW DESIGN WITH A BETTER FLOW AND 
-ALSO PUTTY NOW OPENS AND CLOSES AFTER 5 SECONDS
+WITH HELP FROM CHATGPT I HAVE NOW MADE THE TOOL A STANDALONE TOOL
+THERE IS NO INSTALL ROUTINE ALL FILES ARE NOW BUNDLED INTO THE 
+EXE FILE JUST DOWNLOAD IT AND RUN IT.
 
- IF YOU HAVE ANY ISSUES WITH V11 PLEASE USE V10 AND NOTIFY ME VIA THE EMAIL
- BELOW
- 
-
-
-
-**********************************************************************************
-the win7 32bit is exactly that, the latest version doesnt work due 
-to netframe work and also putty version is 64bit, has been tested on
-WIn7 ultimate but no guarantees it does work on other versions, if it doesnt
-email me at flymymavic@outlook.com
-
-*********************************************************
-
-THIS IS IMPORTANT, THE TOOL MUST BE INSTALLED IN THE SET
-DIRECTORY C:\USER OR THE TOOL WILL NOT WORK
-************************************************************
-************************************************************
+IF YOU ARE A WIN7 USER PLEASE USE THAT VERSION AS THE STANDALONE VERSION WONT WORK WITH WIN7
 
 This is the Phantom 2 Vision Plus Flashing tool
 this is designed only for the above quad and no others
