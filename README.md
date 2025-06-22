@@ -1,4 +1,4 @@
-v10 is for windows users
+v11 is for windows users
 
 IF YOU ARE A WIN7 USER PLEASE USE THAT VERSION AS THE STANDALONE VERSION WONT WORK WITH WIN7
 
