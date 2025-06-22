@@ -1,6 +1,6 @@
 v11 is for windows users
 
-IF YOU ARE A WIN7 USER PLEASE USE THAT VERSION AS THE STANDALONE VERSION WONT WORK WITH WIN7
+IF YOU ARE A WIN7 USER PLEASE USE THAT VERSION AS THE V11 VERSION WONT WORK WITH WIN7
 
 This is the Phantom 2 Vision Plus Flashing tool
 this is designed only for the above quad and no others
