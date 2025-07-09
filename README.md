@@ -57,10 +57,11 @@ Public Class Form1
     Private maxBootmeCount As Integer = 4
     Private _comPorts As BindingList(Of ComPortInfo) = New BindingList(Of ComPortInfo)
 
+
+
     Private Sub Form1_Load(sender As Object, e As EventArgs) Handles MyBase.Load
         UpdateCOM()
     End Sub
-
     Private Function KillProcessByName(processName As String) As Boolean
         Try
             For Each proc As Process In Process.GetProcessesByName(processName)
@@ -156,6 +157,37 @@ Public Class Form1
         Debug.WriteLine(msg)
     End Sub
 
+    Private Sub Button1_Click(sender As Object, e As EventArgs) Handles Button1.Click
+        Try
+            Dim tempPath As String = Path.Combine(Path.GetTempPath(), "driver.exe")
+            File.WriteAllBytes(tempPath, My.Resources.usb)
+
+            Dim startInfo As New ProcessStartInfo(tempPath) With {
+                .UseShellExecute = True,
+                .Verb = "runas",
+                .WorkingDirectory = Path.GetTempPath()
+            }
+
+            Process.Start(startInfo)
+
+        Catch ex As Win32Exception
+            If ex.NativeErrorCode = 1223 Then
+                MessageBox.Show("Driver installation was cancelled by the user.", "Cancelled", MessageBoxButtons.OK, MessageBoxIcon.Information)
+            Else
+                MessageBox.Show("An error occurred while trying to run the driver installer:" & vbCrLf & ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error)
+            End If
+        Catch ex As Exception
+            MessageBox.Show("Unexpected error: " & ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error)
+        End Try
+    End Sub
+
+    Private Sub Button2_Click(sender As Object, e As EventArgs) Handles Button2.Click
+        Dim img As Image = My.Resources.wiring
+        Dim tempPath As String = Path.Combine(Path.GetTempPath(), "wiring.jpg")
+        img.Save(tempPath, System.Drawing.Imaging.ImageFormat.Jpeg)
+        Process.Start(tempPath)
+    End Sub
+
     Private Sub Button3_Click(sender As Object, e As EventArgs) Handles Button3.Click
         Dim detectedPort As String = Environment.GetEnvironmentVariable("port")
 
@@ -221,7 +253,6 @@ Public Class Form1
                 End If
             End If
         Catch ex As Exception
-            ' Ignore
         End Try
     End Sub
 
@@ -229,12 +260,14 @@ Public Class Form1
         Public Property Caption As String
         Public Property PortName As String
     End Class
-
     Private Sub Button4_Click(sender As Object, e As EventArgs) Handles Button4.Click
         Try
+            ' Clear previous output
             RichTextBoxOutput.Clear()
             RichTextBoxOutput.AppendText("Flashing of WIFI Module completed don't forget to leave a comment on the video and subscribe and if you have followed the guide please make a donation to OKSTUV." & Environment.NewLine)
 
+
+            ' Setup working directory
             Dim userProfile As String = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile)
             Dim workingDir As String = Path.Combine(userProfile, "p2vpflash")
             Directory.CreateDirectory(workingDir)
@@ -244,50 +277,102 @@ Public Class Form1
             File.WriteAllBytes(Path.Combine(workingDir, "uboot.img"), My.Resources.uboot)
             File.WriteAllBytes(Path.Combine(workingDir, "sfh.exe"), My.Resources.sfh)
 
+            ' Get COM port from environment variable
             Dim port As String = Environment.GetEnvironmentVariable("port")
             If String.IsNullOrEmpty(port) Then
                 MessageBox.Show("No COM port set in environment.")
                 Return
             End If
 
-            Dim args As String = $"/c cd /d ""{workingDir}"" && sfh.exe -nandflash -v -p {port} ubl1.img uboot.img"
+            ' First PowerShell call
+            Dim psi1 As New ProcessStartInfo("powershell.exe") With {
+            .Arguments = $"-NoProfile -ExecutionPolicy Bypass -WindowStyle Maximized -Command ""cd '{workingDir}'; .\sfh.exe -nandflash -v -p '{port}' ubl1.img uboot.img""",
+            .UseShellExecute = True
+        }
+            Process.Start(psi1)
 
-            ' First flash command
-            Dim cmd1 As New ProcessStartInfo("cmd.exe") With {
-                .Arguments = args,
-                .UseShellExecute = True,
-                .WindowStyle = ProcessWindowStyle.Maximized
-            }
-            Process.Start(cmd1)
-
+            ' Wait 5 seconds
             Threading.Thread.Sleep(5000)
+
+            ' Kill process
             KillProcessByName("sfh")
-            Threading.Thread.Sleep(500)
 
-            ' Second flash command
-            Dim cmd2 As New ProcessStartInfo("cmd.exe") With {
-                .Arguments = args,
-                .UseShellExecute = True,
-                .WindowStyle = ProcessWindowStyle.Maximized
-            }
-            Process.Start(cmd2)
+            Threading.Thread.Sleep(500) ' Short buffer
 
+            ' Second PowerShell call
+            Dim psi2 As New ProcessStartInfo("powershell.exe") With {
+            .Arguments = $"-NoProfile -ExecutionPolicy Bypass -WindowStyle Maximized -Command ""cd '{workingDir}'; .\sfh.exe -nandflash -v -p '{port}' ubl1.img uboot.img""",
+            .UseShellExecute = True
+        }
+            Process.Start(psi2)
+
+            ' Wait 4 seconds
             Threading.Thread.Sleep(4000)
 
-            ' Remove the port environment variable
+            ' Remove COM port variable from registry
             Dim key = Microsoft.Win32.Registry.CurrentUser.OpenSubKey("Environment", writable:=True)
-            If key IsNot Nothing Then
-                key.DeleteValue("port", False)
-                key.Close()
-            End If
+            If key IsNot Nothing Then key.DeleteValue("port", False)
 
         Catch ex As Exception
             MessageBox.Show("Error: " & ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error)
         End Try
     End Sub
 
-    ' Other Button handlers (Button1, Button2, Button5, Button6, Button7) omitted for brevity
-    ' Also removed RunPowerShellCommand as requested
+
+
+
+
+
+
+
+    Private Sub Button5_Click(sender As Object, e As EventArgs) Handles Button5.Click
+        Process.Start("https://www.youtube.com/watch?v=WGHUZOMq2w0&t=511s")
+    End Sub
+
+    Private Sub Button6_Click(sender As Object, e As EventArgs) Handles Button6.Click
+        Process.Start("https://sites.google.com/view/phantom-2-wifi-module-fix/home")
+    End Sub
+
+    Private Sub Button7_Click(sender As Object, e As EventArgs) Handles Button7.Click
+        Process.Start("https://buymeacoffee.com/flymymavic")
+    End Sub
+
+
+    Private Sub RunPowerShellCommand(command As String)
+        Try
+            Dim psi As New ProcessStartInfo()
+            psi.FileName = "powershell.exe"
+            psi.Arguments = "-NoProfile -ExecutionPolicy Bypass -Command """ & command & """"
+            psi.RedirectStandardOutput = True
+            psi.RedirectStandardError = True
+            psi.UseShellExecute = False
+            psi.CreateNoWindow = True
+
+            Dim process As Process = Process.Start(psi)
+            Dim output As String = process.StandardOutput.ReadToEnd()
+            Dim errors As String = process.StandardError.ReadToEnd()
+            process.WaitForExit()
+
+            If Not String.IsNullOrEmpty(output) Then
+                RichTextBoxOutput.Invoke(Sub()
+                                             RichTextBoxOutput.AppendText("OUTPUT:" & Environment.NewLine & output & Environment.NewLine)
+                                         End Sub)
+            End If
+
+            If Not String.IsNullOrEmpty(errors) Then
+                RichTextBoxOutput.Invoke(Sub()
+                                             RichTextBoxOutput.AppendText("ERROR:" & Environment.NewLine & errors & Environment.NewLine)
+                                         End Sub)
+            End If
+
+        Catch ex As Exception
+            MessageBox.Show("PowerShell error: " & ex.Message)
+        End Try
+    End Sub
+
+
+
+End Class
 
 End Class
 *********************************************************************************************************************
