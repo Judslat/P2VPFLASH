@@ -18,6 +18,7 @@ LATEST VERSION IS THE STANDALONE PRODUCT, THIS IS AS IT SOUNDS A SINGLE PROGRAM 
 THE NEEDED TOOLS BUILT INTO IT SO NO INSTALLER ROUTINE JUST DOWNLOAD AND RUN, HOWEVER WINDOWS
 AND SOME OTHER VIRUS SCANNERS DETECT IT AS A VIRUS DUE TO THE WAY THE SCRIPTS ARE RUN, IF YOU 
 DONT LIKE THIS THEN USE V11 INSTEAD.
+There are 2 versions one runs in powershell the other in good old DOS but both do the same thing
 *******************************************************************************************
 
 
