@@ -1,5 +1,15 @@
+
+LATEST VERSION IS 15 THIS IS BASICALLY THE STANDALONE VERSION WITH A FEW TWEAKS TO THE CODE
+TO LOCK BUTTONS NOT IN USE AND CLEAR THE TEXT BOX IF YOU ARE FLASHING MULTIPLE UNITS.
+*****************************************************************************************
+
+
+
+
+
 IVE BEEN ADVISED TO ADD THE CODE FOR THIS PROJECT, I DONT KNOW WHERE IT GOES IN GITHUB
-SO ITS AT THE BOTTOM OF THE README 
+SO ITS AT THE BOTTOM OF THE README LATEST CODE BELOW IS FOR V15 FEEL FREE TO COMPILE IT 
+YOURSELF 
 
 
 
@@ -41,8 +51,6 @@ first time the tool is run
 VIDEO GUIDE IS HERE https://www.youtube.com/watch?v=WGHUZOMq2w0&t=511s
 
 ********************************************************************************************
-PROJECT CODE
-
 Imports System.ComponentModel
 Imports System.IO
 Imports System.IO.Ports
@@ -56,12 +64,12 @@ Public Class Form1
     Private bootmeCount As Integer = 0
     Private maxBootmeCount As Integer = 4
     Private _comPorts As BindingList(Of ComPortInfo) = New BindingList(Of ComPortInfo)
-
-
+    Private comPortPreviouslyDetected As Boolean = False ' Track COM port state
 
     Private Sub Form1_Load(sender As Object, e As EventArgs) Handles MyBase.Load
         UpdateCOM()
     End Sub
+
     Private Function KillProcessByName(processName As String) As Boolean
         Try
             For Each proc As Process In Process.GetProcessesByName(processName)
@@ -122,13 +130,27 @@ Public Class Form1
             End If
 
             LogMsg("Auto-selected USB Port: " & selectedPort)
+
+            Button3.Invoke(Sub() Button3.Enabled = True)
+            Button4.Invoke(Sub() Button4.Enabled = True) ' enable button but leave text untouched
+
+            comPortPreviouslyDetected = True
         Else
+            ' No COM port detected
             If TextBoxDetectedPort.InvokeRequired Then
-                TextBoxDetectedPort.Invoke(Sub() TextBoxDetectedPort.Text = "       Please plug USB TTL adapter in to Computer")
+                TextBoxDetectedPort.Invoke(Sub() TextBoxDetectedPort.Text = "       Please plug USB TTL adapter into Computer")
             Else
                 TextBoxDetectedPort.Text = "No USB Port detected"
             End If
             LogMsg("No USB Port found.")
+
+            Button3.Invoke(Sub() Button3.Enabled = False)
+            Button4.Invoke(Sub() Button4.Enabled = False)
+
+            ' Clear RichTextBox when USB is unplugged
+            RichTextBoxOutput.Invoke(Sub() RichTextBoxOutput.Clear())
+
+            comPortPreviouslyDetected = False
         End If
     End Sub
 
@@ -253,6 +275,7 @@ Public Class Form1
                 End If
             End If
         Catch ex As Exception
+            ' Ignore
         End Try
     End Sub
 
@@ -260,70 +283,93 @@ Public Class Form1
         Public Property Caption As String
         Public Property PortName As String
     End Class
+
+    ' --- Button4 Flash Wi-Fi Module ---
     Private Sub Button4_Click(sender As Object, e As EventArgs) Handles Button4.Click
-        Try
-            ' Clear previous output
-            RichTextBoxOutput.Clear()
-            RichTextBoxOutput.AppendText("Flashing of WIFI Module completed don't forget to leave a comment on the video and subscribe and if you have followed the guide please make a donation to OKSTUV." & Environment.NewLine)
+        Dim port As String = Environment.GetEnvironmentVariable("port")
 
+        If String.IsNullOrEmpty(port) Then
+            MessageBox.Show("No COM port set in environment.")
+            Return
+        End If
 
-            ' Setup working directory
-            Dim userProfile As String = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile)
-            Dim workingDir As String = Path.Combine(userProfile, "p2vpflash")
-            Directory.CreateDirectory(workingDir)
+        Dim originalText As String = Button4.Text
+        Button4.Enabled = False
+        Button4.Text = "Now Flashing Board on " & port & "..."
+        Application.DoEvents()
 
-            ' Extract embedded files to disk
-            File.WriteAllBytes(Path.Combine(workingDir, "ubl1.img"), My.Resources.ubl1)
-            File.WriteAllBytes(Path.Combine(workingDir, "uboot.img"), My.Resources.uboot)
-            File.WriteAllBytes(Path.Combine(workingDir, "sfh.exe"), My.Resources.sfh)
+        Dim flashThread As New Thread(Sub()
+                                          Try
+                                              RichTextBoxOutput.Invoke(Sub()
+                                                                           RichTextBoxOutput.Clear()
+                                                                           RichTextBoxOutput.AppendText("Flashing in process please wait" & Environment.NewLine)
+                                                                       End Sub)
 
-            ' Get COM port from environment variable
-            Dim port As String = Environment.GetEnvironmentVariable("port")
-            If String.IsNullOrEmpty(port) Then
-                MessageBox.Show("No COM port set in environment.")
-                Return
-            End If
+                                              Dim userProfile As String = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile)
+                                              Dim workingDir As String = Path.Combine(userProfile, "p2vpflash")
+                                              Directory.CreateDirectory(workingDir)
 
-            ' First PowerShell call
-            Dim psi1 As New ProcessStartInfo("powershell.exe") With {
-            .Arguments = $"-NoProfile -ExecutionPolicy Bypass -WindowStyle Maximized -Command ""cd '{workingDir}'; .\sfh.exe -nandflash -v -p '{port}' ubl1.img uboot.img""",
-            .UseShellExecute = True
-        }
-            Process.Start(psi1)
+                                              File.WriteAllBytes(Path.Combine(workingDir, "ubl1.img"), My.Resources.ubl1)
+                                              File.WriteAllBytes(Path.Combine(workingDir, "uboot.img"), My.Resources.uboot)
+                                              File.WriteAllBytes(Path.Combine(workingDir, "sfh.exe"), My.Resources.sfh)
 
-            ' Wait 5 seconds
-            Threading.Thread.Sleep(5000)
+                                              ' --- FIRST RUN (kill after 6 seconds) ---
+                                              Dim args1 As String = $"/c cd /d ""{workingDir}"" && sfh.exe -nandflash -v -p {port} ubl1.img uboot.img"
+                                              Dim cmd1 As New ProcessStartInfo("cmd.exe") With {
+                                                  .Arguments = args1,
+                                                  .UseShellExecute = True,
+                                                  .WindowStyle = ProcessWindowStyle.Normal
+                                              }
 
-            ' Kill process
-            KillProcessByName("sfh")
+                                              Dim p1 As Process = Process.Start(cmd1)
+                                              Thread.Sleep(6000)
+                                              KillProcessByName("sfh")
+                                              Thread.Sleep(500)
 
-            Threading.Thread.Sleep(500) ' Short buffer
+                                              ' --- SECOND RUN (wait until completion) ---
+                                              Dim args2 As String = args1
+                                              Dim cmd2 As New ProcessStartInfo("cmd.exe") With {
+                                                  .Arguments = args2,
+                                                  .UseShellExecute = True,
+                                                  .WindowStyle = ProcessWindowStyle.Normal
+                                              }
 
-            ' Second PowerShell call
-            Dim psi2 As New ProcessStartInfo("powershell.exe") With {
-            .Arguments = $"-NoProfile -ExecutionPolicy Bypass -WindowStyle Maximized -Command ""cd '{workingDir}'; .\sfh.exe -nandflash -v -p '{port}' ubl1.img uboot.img""",
-            .UseShellExecute = True
-        }
-            Process.Start(psi2)
+                                              Dim p2 As Process = Process.Start(cmd2)
+                                              If p2 IsNot Nothing Then
+                                                  p2.WaitForExit()
+                                              End If
 
-            ' Wait 4 seconds
-            Threading.Thread.Sleep(4000)
+                                              ' Flash completed message
+                                              RichTextBoxOutput.Invoke(Sub()
+                                                                           RichTextBoxOutput.AppendText("Flashing of WIFI Module completed successfully" & Environment.NewLine)
+                                                                       End Sub)
 
-            ' Remove COM port variable from registry
-            Dim key = Microsoft.Win32.Registry.CurrentUser.OpenSubKey("Environment", writable:=True)
-            If key IsNot Nothing Then key.DeleteValue("port", False)
+                                              ' Remove port environment variable
+                                              Dim key = Microsoft.Win32.Registry.CurrentUser.OpenSubKey("Environment", writable:=True)
+                                              If key IsNot Nothing Then
+                                                  key.DeleteValue("port", False)
+                                                  key.Close()
+                                              End If
 
-        Catch ex As Exception
-            MessageBox.Show("Error: " & ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error)
-        End Try
+                                              ' Show completion on button for 2 seconds
+                                              Button4.Invoke(Sub()
+                                                                 Button4.Text = "Flashing completed ✅"
+                                                             End Sub)
+                                              Thread.Sleep(2000)
+
+                                          Catch ex As Exception
+                                              MessageBox.Show("Error: " & ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error)
+                                          Finally
+                                              Button4.Invoke(Sub()
+                                                                 Button4.Text = originalText
+                                                                 Button4.Enabled = False ' disable until COM re-detected
+                                                             End Sub)
+                                          End Try
+                                      End Sub)
+
+        flashThread.IsBackground = True
+        flashThread.Start()
     End Sub
-
-
-
-
-
-
-
 
     Private Sub Button5_Click(sender As Object, e As EventArgs) Handles Button5.Click
         Process.Start("https://www.youtube.com/watch?v=WGHUZOMq2w0&t=511s")
@@ -337,43 +383,7 @@ Public Class Form1
         Process.Start("https://buymeacoffee.com/flymymavic")
     End Sub
 
-
-    Private Sub RunPowerShellCommand(command As String)
-        Try
-            Dim psi As New ProcessStartInfo()
-            psi.FileName = "powershell.exe"
-            psi.Arguments = "-NoProfile -ExecutionPolicy Bypass -Command """ & command & """"
-            psi.RedirectStandardOutput = True
-            psi.RedirectStandardError = True
-            psi.UseShellExecute = False
-            psi.CreateNoWindow = True
-
-            Dim process As Process = Process.Start(psi)
-            Dim output As String = process.StandardOutput.ReadToEnd()
-            Dim errors As String = process.StandardError.ReadToEnd()
-            process.WaitForExit()
-
-            If Not String.IsNullOrEmpty(output) Then
-                RichTextBoxOutput.Invoke(Sub()
-                                             RichTextBoxOutput.AppendText("OUTPUT:" & Environment.NewLine & output & Environment.NewLine)
-                                         End Sub)
-            End If
-
-            If Not String.IsNullOrEmpty(errors) Then
-                RichTextBoxOutput.Invoke(Sub()
-                                             RichTextBoxOutput.AppendText("ERROR:" & Environment.NewLine & errors & Environment.NewLine)
-                                         End Sub)
-            End If
-
-        Catch ex As Exception
-            MessageBox.Show("PowerShell error: " & ex.Message)
-        End Try
-    End Sub
-
-
-
 End Class
 
-End Class
 *********************************************************************************************************************
 
